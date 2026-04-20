@@ -5,16 +5,23 @@ import { RiderHome } from './Home';
 import { RiderTrips } from './Trips';
 import { RiderWallet } from './Wallet';
 import { RiderProfile } from './Profile';
+import { RiderTrackRide } from './TrackRide';
+import type { Booking } from '../data/mock';
 
 type RiderTab = 'home' | 'trips' | 'wallet' | 'profile';
 
 export function RiderApp({ onSignOut }: { onSignOut: () => void }) {
   const [tab, setTab] = useState<RiderTab>('home');
+  const [trackingBooking, setTrackingBooking] = useState<Booking | null>(null);
+
+  if (trackingBooking) {
+    return <RiderTrackRide booking={trackingBooking} onBack={() => setTrackingBooking(null)} />;
+  }
 
   return (
     <div className="min-h-screen pb-20">
-      {tab === 'home' && <RiderHome />}
-      {tab === 'trips' && <RiderTrips />}
+      {tab === 'home' && <RiderHome onTrackBooking={setTrackingBooking} />}
+      {tab === 'trips' && <RiderTrips onTrackBooking={setTrackingBooking} />}
       {tab === 'wallet' && <RiderWallet />}
       {tab === 'profile' && <RiderProfile onSignOut={onSignOut} />}
 

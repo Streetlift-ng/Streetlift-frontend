@@ -21,7 +21,7 @@ export function AdminUsers() {
         }
       />
 
-      <div className="p-6 space-y-5 max-w-7xl">
+      <div className="p-4 md:p-6 space-y-5 max-w-7xl">
         <div className="flex flex-wrap gap-3 items-center justify-between">
           <Tabs<UsersTab>
             value={tab}
@@ -38,7 +38,7 @@ export function AdminUsers() {
         </div>
 
         <Card padding="none">
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto"><table className="w-full text-sm min-w-[640px]">
             <thead>
               <tr className="text-left text-xs text-text-muted uppercase tracking-wider border-b border-border">
                 <th className="px-5 py-3 font-medium">Name</th>
@@ -66,7 +66,7 @@ export function AdminUsers() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         </Card>
       </div>
     </>

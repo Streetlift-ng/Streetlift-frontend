@@ -24,7 +24,7 @@ export function AdminDrivers() {
         }
       />
 
-      <div className="p-6 space-y-5 max-w-7xl">
+      <div className="p-4 md:p-6 space-y-5 max-w-7xl">
         <div className="flex flex-wrap gap-3 items-center justify-between">
           <Tabs<DriverTab>
             value={tab}
@@ -47,7 +47,7 @@ export function AdminDrivers() {
           </Card>
         ) : (
           <Card padding="none">
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto"><table className="w-full text-sm min-w-[640px]">
               <thead>
                 <tr className="text-left text-xs text-text-muted uppercase tracking-wider border-b border-border">
                   <th className="px-5 py-3 font-medium">Applicant</th>
@@ -96,7 +96,7 @@ export function AdminDrivers() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           </Card>
         )}
       </div>

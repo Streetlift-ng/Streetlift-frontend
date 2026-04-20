@@ -25,7 +25,7 @@ export function AdminWallets() {
         }
       />
 
-      <div className="p-6 space-y-5 max-w-7xl">
+      <div className="p-4 md:p-6 space-y-5 max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1">
             <SectionHeader title="Top wallets" />
@@ -61,7 +61,7 @@ export function AdminWallets() {
               </div>
             </div>
             <Card padding="none">
-              <table className="w-full text-sm">
+              <div className="overflow-x-auto"><table className="w-full text-sm min-w-[640px]">
                 <thead>
                   <tr className="text-left text-xs text-text-muted uppercase tracking-wider border-b border-border">
                     <th className="px-5 py-3 font-medium">User</th>
@@ -93,7 +93,7 @@ export function AdminWallets() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
             </Card>
           </div>
         </div>

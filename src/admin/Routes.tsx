@@ -28,7 +28,7 @@ export function AdminRoutes() {
         }
       />
 
-      <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-7xl">
+      <div className="p-4 md:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-7xl">
         {/* Route list */}
         <div className="lg:col-span-1 space-y-3">
           <SectionHeader title="All routes" />

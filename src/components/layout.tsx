@@ -1,5 +1,5 @@
-import { ReactNode } from 'react';
-import { LucideIcon, Bell } from 'lucide-react';
+import { createContext, useContext, type ReactNode } from 'react';
+import { LucideIcon, Bell, Menu, X } from 'lucide-react';
 import { Avatar, IconButton, cx } from './ui';
 
 // ---------- Brand mark ----------
@@ -102,7 +102,19 @@ export function BottomNav<T extends string>({
   );
 }
 
-// ---------- Admin sidebar ----------
+// ---------- Admin shell context (to let AdminTopBar open the drawer) ----------
+
+interface AdminShellCtx {
+  openSideNav: () => void;
+}
+
+const AdminShellContext = createContext<AdminShellCtx | null>(null);
+
+export function AdminShellProvider({ value, children }: { value: AdminShellCtx; children: ReactNode }) {
+  return <AdminShellContext.Provider value={value}>{children}</AdminShellContext.Provider>;
+}
+
+// ---------- Admin sidebar (responsive: slide-in drawer on mobile, fixed on desktop) ----------
 
 export interface SideNavItem<T extends string> {
   id: T;
@@ -118,18 +130,32 @@ export function SideNav<T extends string>({
   onChange,
   userName,
   userRole,
+  mobileOpen = false,
+  onMobileClose,
 }: {
   items: SideNavItem<T>[];
   value: T;
   onChange: (id: T) => void;
   userName: string;
   userRole: string;
+  mobileOpen?: boolean;
+  onMobileClose?: () => void;
 }) {
   const sections = Array.from(new Set(items.map((it) => it.section ?? 'Main')));
-  return (
-    <aside className="hidden md:flex md:flex-col w-64 shrink-0 bg-surface border-r border-border h-screen sticky top-0">
-      <div className="h-16 px-5 flex items-center border-b border-border">
+
+  const body = (
+    <>
+      <div className="h-16 px-5 flex items-center justify-between border-b border-border shrink-0">
         <BrandMark />
+        {onMobileClose && (
+          <button
+            onClick={onMobileClose}
+            aria-label="Close menu"
+            className="md:hidden text-text-muted hover:text-text p-1"
+          >
+            <X size={18} />
+          </button>
+        )}
       </div>
 
       <nav className="flex-1 overflow-y-auto py-4 space-y-5 scroll-fade">
@@ -146,7 +172,10 @@ export function SideNav<T extends string>({
                   return (
                     <li key={id}>
                       <button
-                        onClick={() => onChange(id)}
+                        onClick={() => {
+                          onChange(id);
+                          onMobileClose?.();
+                        }}
                         className={cx(
                           'w-full flex items-center gap-3 px-3 h-9 rounded-lg text-sm font-medium transition-colors',
                           active
@@ -175,32 +204,84 @@ export function SideNav<T extends string>({
         ))}
       </nav>
 
-      <div className="border-t border-border px-4 py-3 flex items-center gap-3">
+      <div className="border-t border-border px-4 py-3 flex items-center gap-3 shrink-0">
         <Avatar name={userName} size={36} />
         <div className="min-w-0 flex-1">
           <p className="text-sm font-medium text-text truncate">{userName}</p>
           <p className="text-[11px] text-text-muted truncate">{userRole}</p>
         </div>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <aside className="hidden md:flex md:flex-col w-64 shrink-0 bg-surface border-r border-border h-screen sticky top-0">
+        {body}
+      </aside>
+
+      {/* Mobile drawer */}
+      <div
+        className={cx(
+          'md:hidden fixed inset-0 z-50 transition-opacity',
+          mobileOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0',
+        )}
+        aria-hidden={!mobileOpen}
+      >
+        <div className="absolute inset-0 bg-ink-900/50" onClick={onMobileClose} />
+        <aside
+          className={cx(
+            'absolute left-0 top-0 bottom-0 w-72 max-w-[85%] bg-surface border-r border-border flex flex-col shadow-xl transition-transform duration-200',
+            mobileOpen ? 'translate-x-0' : '-translate-x-full',
+          )}
+        >
+          {body}
+        </aside>
+      </div>
+    </>
   );
 }
 
 // ---------- Admin top bar ----------
 
 export function AdminTopBar({ title, subtitle, actions }: { title: string; subtitle?: string; actions?: ReactNode }) {
+  const ctx = useContext(AdminShellContext);
   return (
     <header className="sticky top-0 z-20 bg-bg/90 backdrop-blur-md border-b border-border">
-      <div className="px-6 h-16 flex items-center justify-between">
-        <div>
-          <h1 className="font-display font-bold text-xl text-text leading-none">{title}</h1>
-          {subtitle && <p className="text-xs text-text-muted mt-1">{subtitle}</p>}
+      <div className="px-4 md:px-6 h-16 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0">
+          {ctx && (
+            <button
+              aria-label="Open menu"
+              onClick={ctx.openSideNav}
+              className="md:hidden inline-flex items-center justify-center w-9 h-9 rounded-lg border border-border bg-surface hover:bg-surface-soft text-text shrink-0"
+            >
+              <Menu size={18} />
+            </button>
+          )}
+          <div className="min-w-0">
+            <h1 className="font-display font-bold text-lg md:text-xl text-text leading-none truncate">
+              {title}
+            </h1>
+            {subtitle && (
+              <p className="text-[11px] md:text-xs text-text-muted mt-1 truncate hidden sm:block">
+                {subtitle}
+              </p>
+            )}
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          {actions}
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="hidden sm:flex items-center gap-2">{actions}</div>
           <IconButton icon={Bell} label="Notifications" variant="outline" />
         </div>
       </div>
+      {/* Mobile-only secondary row for actions when present */}
+      {actions && (
+        <div className="sm:hidden px-4 pb-3 flex items-center gap-2 overflow-x-auto no-scrollbar">
+          {actions}
+        </div>
+      )}
     </header>
   );
 }

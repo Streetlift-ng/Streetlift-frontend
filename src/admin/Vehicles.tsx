@@ -26,7 +26,7 @@ export function AdminVehicles() {
         }
       />
 
-      <div className="p-6 space-y-5 max-w-7xl">
+      <div className="p-4 md:p-6 space-y-5 max-w-7xl">
         <div className="flex flex-wrap gap-3 items-center justify-between">
           <Tabs<VehicleTab>
             value={tab}

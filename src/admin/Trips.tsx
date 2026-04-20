@@ -24,7 +24,7 @@ export function AdminTrips() {
         }
       />
 
-      <div className="p-6 space-y-5 max-w-7xl">
+      <div className="p-4 md:p-6 space-y-5 max-w-7xl">
         <Tabs<TripTab>
           value={tab}
           onChange={setTab}

@@ -10,7 +10,7 @@ import {
   Wallet as WalletIcon,
   Settings,
 } from 'lucide-react';
-import { SideNav, SideNavItem } from '../components/layout';
+import { AdminShellProvider, SideNav, SideNavItem } from '../components/layout';
 import { AdminDashboard } from './Dashboard';
 import { AdminDrivers } from './Drivers';
 import { AdminVehicles } from './Vehicles';
@@ -34,6 +34,7 @@ type AdminPage =
 
 export function AdminApp({ onSignOut }: { onSignOut: () => void }) {
   const [page, setPage] = useState<AdminPage>('dashboard');
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const items: SideNavItem<AdminPage>[] = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, section: 'Overview' },
@@ -48,26 +49,30 @@ export function AdminApp({ onSignOut }: { onSignOut: () => void }) {
   ];
 
   return (
-    <div className="min-h-screen flex bg-bg">
-      <SideNav<AdminPage>
-        items={items}
-        value={page}
-        onChange={setPage}
-        userName="Admin Desk"
-        userRole="Operations · HQ"
-      />
+    <AdminShellProvider value={{ openSideNav: () => setDrawerOpen(true) }}>
+      <div className="min-h-screen flex bg-bg">
+        <SideNav<AdminPage>
+          items={items}
+          value={page}
+          onChange={setPage}
+          userName="Admin Desk"
+          userRole="Operations · HQ"
+          mobileOpen={drawerOpen}
+          onMobileClose={() => setDrawerOpen(false)}
+        />
 
-      <div className="flex-1 min-w-0">
-        {page === 'dashboard' && <AdminDashboard onNavigate={setPage} />}
-        {page === 'drivers' && <AdminDrivers />}
-        {page === 'vehicles' && <AdminVehicles />}
-        {page === 'users' && <AdminUsers />}
-        {page === 'routes' && <AdminRoutes />}
-        {page === 'wait-points' && <AdminWaitPoints />}
-        {page === 'trips' && <AdminTrips />}
-        {page === 'wallets' && <AdminWallets />}
-        {page === 'settings' && <AdminSettings onSignOut={onSignOut} />}
+        <div className="flex-1 min-w-0">
+          {page === 'dashboard' && <AdminDashboard onNavigate={setPage} />}
+          {page === 'drivers' && <AdminDrivers />}
+          {page === 'vehicles' && <AdminVehicles />}
+          {page === 'users' && <AdminUsers />}
+          {page === 'routes' && <AdminRoutes />}
+          {page === 'wait-points' && <AdminWaitPoints />}
+          {page === 'trips' && <AdminTrips />}
+          {page === 'wallets' && <AdminWallets />}
+          {page === 'settings' && <AdminSettings onSignOut={onSignOut} />}
+        </div>
       </div>
-    </div>
+    </AdminShellProvider>
   );
 }

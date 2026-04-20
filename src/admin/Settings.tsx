@@ -7,7 +7,7 @@ export function AdminSettings({ onSignOut }: { onSignOut: () => void }) {
     <>
       <AdminTopBar title="Settings" subtitle="Workspace, security and integrations" />
 
-      <div className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-5xl">
+      <div className="p-4 md:p-6 grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-5xl">
         <Card padding="md">
           <SectionHeader title="Organization" />
           <div className="space-y-2 text-sm">

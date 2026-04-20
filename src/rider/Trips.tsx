@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { Navigation, CheckCircle2, XCircle, Clock, Receipt } from 'lucide-react';
+import { Navigation, CheckCircle2, XCircle, Clock, Receipt, MapPin } from 'lucide-react';
 import { TopBar } from '../components/layout';
-import { Badge, Card, EmptyState, SectionHeader, Tabs } from '../components/ui';
+import { Badge, Button, Card, EmptyState, SectionHeader, Tabs } from '../components/ui';
 import { riderBookings, type Booking } from '../data/mock';
 
 type TripTab = 'upcoming' | 'completed' | 'cancelled';
 
-export function RiderTrips() {
+export function RiderTrips({ onTrackBooking }: { onTrackBooking: (b: Booking) => void }) {
   const [tab, setTab] = useState<TripTab>('upcoming');
 
   const items = riderBookings.filter((b) => {
@@ -45,7 +45,11 @@ export function RiderTrips() {
         ) : (
           <div className="space-y-3">
             {items.map((b) => (
-              <BookingRow key={b.id} b={b} />
+              <BookingRow
+                key={b.id}
+                b={b}
+                onTrack={b.status === 'upcoming' || b.status === 'in_progress' ? () => onTrackBooking(b) : undefined}
+              />
             ))}
           </div>
         )}
@@ -63,7 +67,7 @@ export function RiderTrips() {
   );
 }
 
-function BookingRow({ b }: { b: Booking }) {
+function BookingRow({ b, onTrack }: { b: Booking; onTrack?: () => void }) {
   const tone = b.status === 'completed' ? 'success' : b.status === 'cancelled' ? 'danger' : 'brand';
   const StatusIcon = b.status === 'completed' ? CheckCircle2 : b.status === 'cancelled' ? XCircle : Clock;
 
@@ -95,6 +99,14 @@ function BookingRow({ b }: { b: Booking }) {
           <button className="text-[11px] text-brand-700 mt-1 hover:underline">View details</button>
         </div>
       </div>
+
+      {onTrack && (
+        <div className="mt-3 pt-3 border-t border-border flex items-center justify-end">
+          <Button size="sm" leftIcon={MapPin} onClick={onTrack}>
+            Track ride
+          </Button>
+        </div>
+      )}
     </Card>
   );
 }

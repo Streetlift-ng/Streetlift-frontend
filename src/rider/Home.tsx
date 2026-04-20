@@ -22,9 +22,9 @@ import {
   Modal,
   SectionHeader,
 } from '../components/ui';
-import { rides, waitPoints, routes, walletTxns } from '../data/mock';
+import { rides, waitPoints, routes, walletTxns, riderBookings, type Booking } from '../data/mock';
 
-export function RiderHome() {
+export function RiderHome({ onTrackBooking }: { onTrackBooking: (b: Booking) => void }) {
   const [query, setQuery] = useState('');
   const [pickedRide, setPickedRide] = useState<(typeof rides)[number] | null>(null);
   const [pickup, setPickup] = useState<string>('');
@@ -84,6 +84,32 @@ export function RiderHome() {
       />
 
       <main className="max-w-2xl mx-auto px-5 pt-4 space-y-6">
+        {(() => {
+          const active = riderBookings.find((b) => b.status === 'upcoming' || b.status === 'in_progress');
+          if (!active) return null;
+          return (
+            <Card padding="md" interactive onClick={() => onTrackBooking(active)} className="border-brand-300">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center shrink-0">
+                  <MapPin size={18} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[11px] uppercase tracking-wider text-text-muted font-medium">Active booking</p>
+                  <p className="font-display font-semibold text-text truncate">
+                    {active.driverName} · {active.vehiclePlate}
+                  </p>
+                  <p className="text-xs text-text-muted truncate">
+                    {active.pickup} → {active.dropoff} · {active.departureTime}
+                  </p>
+                </div>
+                <span className="text-xs font-medium text-brand-700 inline-flex items-center gap-1">
+                  Track <ArrowRight size={12} />
+                </span>
+              </div>
+            </Card>
+          );
+        })()}
+
         <Card padding="md" className="bg-gradient-to-br from-brand-400 to-brand-500 text-white border-0">
           <div className="flex items-center justify-between">
             <div>

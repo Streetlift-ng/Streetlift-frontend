@@ -389,3 +389,56 @@ export const riders: Rider[] = [
   { id: 1003, name: 'Zainab Yusuf', email: 'zainab@mail.com', phone: '+234 803 331 7788', totalTrips: 73 },
   { id: 1004, name: 'David Obi', email: 'david@mail.com', phone: '+234 907 220 1199', totalTrips: 5 },
 ];
+
+// ---------- Map helpers (mock live state) ----------
+
+export interface LatLng {
+  lat: number;
+  lng: number;
+}
+
+/** Synthetic "live" vehicle position — partway between the current stop and the next one. */
+export function driverPositionForRide(rideId: number): LatLng | null {
+  const ride = rides.find((r) => r.id === rideId);
+  if (!ride) return null;
+  const route = routes.find((rt) => rt.name === ride.routeName);
+  if (!route) return null;
+  const currentWp = waitPoints.find((w) => w.name === ride.currentWaitPoint);
+  if (!currentWp) return null;
+  const here = route.points.find((p) => p.waitPointId === currentWp.id);
+  if (!here) return null;
+  const nextPoint = route.points.find((p) => p.sequence === here.sequence + 1);
+  const nextWp = nextPoint ? waitPoints.find((w) => w.id === nextPoint.waitPointId) : undefined;
+  if (!nextWp) return { lat: currentWp.lat, lng: currentWp.lng };
+  // 55% along the segment — reads as "on the way to next stop".
+  const t = 0.55;
+  return {
+    lat: currentWp.lat + (nextWp.lat - currentWp.lat) * t,
+    lng: currentWp.lng + (nextWp.lng - currentWp.lng) * t,
+  };
+}
+
+/** Ordered list of {waitPoint, latlng} for a named route, in sequence order. */
+export function routeWaitPoints(routeName: string): { waitPoint: WaitPoint; sequence: number }[] {
+  const route = routes.find((r) => r.name === routeName);
+  if (!route) return [];
+  return route.points
+    .slice()
+    .sort((a, b) => a.sequence - b.sequence)
+    .map((p) => ({ waitPoint: waitPoints.find((w) => w.id === p.waitPointId)!, sequence: p.sequence }))
+    .filter((x) => !!x.waitPoint);
+}
+
+/** Mock: how many riders are waiting at each wait point on a given ride's route. */
+export function waitingRidersByStop(rideId: number): Record<number, number> {
+  const ride = rides.find((r) => r.id === rideId);
+  if (!ride) return {};
+  // Deterministic seed per wait point per ride so it doesn't flicker between renders.
+  const stops = routeWaitPoints(ride.routeName);
+  const out: Record<number, number> = {};
+  stops.forEach(({ waitPoint }, idx) => {
+    out[waitPoint.id] = Math.max(0, ((rideId + waitPoint.id + idx) % 7) - 1);
+  });
+  return out;
+}
+
